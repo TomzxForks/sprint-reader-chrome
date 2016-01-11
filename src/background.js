@@ -53,27 +53,27 @@ function openReaderWindow() {
 	// and then check to see if values have been stored for the session
 	// If values are found, use them.
 	var percentOfScreenWidth = screen.width * 0.05;
-	
-	// WIDTH	
+
+	// WIDTH
 	var readerWidth = screen.width * readerWidthPercentOfScreen;
 	var width = getFromLocalGreaterThanZero("readerWidth", readerWidth);
 
 	// HEIGHT
 	var readerHeight = screen.height * readerHeightPercentOfScreen;
 	var height = getFromLocalGreaterThanZero("readerHeight", readerHeight);
-	
+
 	// The minimum height and width of the window is 880x550 which
 	// ensures the window maintains the correct ratio width to height
 	if (width < 880) width = 880;
 	if (height < 550) height = 550;
-	
+
 	// TOP & LEFT
 	var top = (screen.height - (screen.height * readerHeightPercentOfScreen)) - percentOfScreenWidth;
 	var left = (screen.width - (screen.width * readerWidthPercentOfScreen)) - percentOfScreenWidth;
 
 	width = parseInt(width);
     height = parseInt(height);
-	
+
   	openReader("reader.html", "", width, height, top, left);
 }
 
@@ -90,21 +90,21 @@ function openReader(url, title, w, h, t, l) {
 	}
 
 	return readerWindow;
-} 
+}
 
 // -------------------------------------------------------------
 // Create the selection menu item in the default context menu
 var contexts = ["page", "selection"];
 for (var i = 0; i < contexts.length; i++) {
   	var context = contexts[i];
-	
-	var title = "Sprint read selected text";	
+
+	var title = "Sprint read selected text";
 	if (context == 'page') {
 		title = "Sprint read last saved selection";
 	}
-	
+
 	chrome.contextMenus.create({
-							"title": title, 
+							"title": title,
 							"contexts": [context],
 							"onclick": openReaderWindowFromContext
 						});
@@ -113,7 +113,7 @@ for (var i = 0; i < contexts.length; i++) {
 // -------------------------------------------------------------
 // Listener for window close
 // We save the selected text to the first history position
-chrome.windows.onRemoved.addListener(function(windowId) {   
+chrome.windows.onRemoved.addListener(function(windowId) {
 	readerWindow = null;
 });
 
@@ -125,10 +125,10 @@ var haveSelection;
 // -------------------------------------------------------------
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	// Reset the selected text
-	selectedText = "";	
+	selectedText = "";
 	dirRTL = false;
 	//alert(request.selectedText);
-	
+
 	switch(request.message)
 	{
 		case 'getSelection':
@@ -151,7 +151,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			openReaderWindow();
 			break;
 	}
-	
+
 	// No need to send a response, we snub them
 	sendResponse({});
 	return true;
@@ -160,13 +160,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 // -------------------------------------------------------------
 var mouseY;
 var mouseX;
-chrome.commands.onCommand.addListener(function(command) {	
+chrome.commands.onCommand.addListener(function(command) {
 	// Listening for commands
  	if (command == 'sprint-read-shortcut') {
 		// User has hit CTRL+SHIFT+Z on the keyboard
 		// Display the selection of text in the sprint reader or
-		// automatically attempt to select text where the mouse is located		
-		if (selectedText.length) {			
+		// automatically attempt to select text where the mouse is located
+		if (selectedText && selectedText.length) {
 			// The user has selected text
 			openReaderWindowFromShortcut(selectedText, haveSelection, dirRTL);
 		}
@@ -174,15 +174,23 @@ chrome.commands.onCommand.addListener(function(command) {
 			// No selection of text exists so we try and obtain a selection
 			// using the mouse location as a guide, i.e. select text block at cursor
 			// Ask the browser for the mouse coordinates
+			// chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+			// 	chrome.tabs.sendMessage(tabs[0].id, {action:'getMouseCoordinates'}, function(response) {
+			// 		mouseX = response.x;
+			// 		mouseY = response.y;
+			// 	});
+			// });
+
 			chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-				chrome.tabs.sendMessage(tabs[0].id, {action:'getMouseCoordinates'}, function(response) {
-					mouseX = response.x;
-					mouseY = response.y;
-				}); 
-			});			
+				chrome.tabs.sendMessage(tabs[0].id, {action: 'getPageContent'}, function(response) {
+					if (response.length) {
+						openReaderWindowFromShortcut(response, haveSelection, dirRTL);
+					}
+				});
+			});
 		}
 	}
-	
+
 	return true;
 });
 
