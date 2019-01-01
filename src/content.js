@@ -95,14 +95,26 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	if (request.action == 'getMouseCoordinates') {
 		sendResponse({ 'x':x,'y':y });
 	} else if (request.action === 'getPageContent') {
-		sendResponse($('.article').text() || $('h1,h2,h3,h4,h5,p').text());
+		var content = $('h1,h2,h3,h4,h5,p');
+		content = preprocessContent(content);
+		sendResponse(content);
 	}
 });
+
+// Add a period at the end of each element in order to separate them from one another.
+// By default $(...).text() will glue different element text together, e.g.,
+// <h1></h1><h2>world</h2> becomes helloworld instead of hello world.
+// We assume that the desired behavior is similar to a new paragraph.
+function preprocessContent(content) {
+	return content.map(function() {
+		return $(this).text();
+	}).get().join('\r\n');
+}
 
 document.addEventListener('mousemove',function(event) {
 	x = event.x;
 	y = event.y;
-})
+});
 
 // Access the extension local storage to determine if the hotkey is enabled
 var hotKeyEnabled = 'false';
