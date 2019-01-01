@@ -185,17 +185,17 @@ function splitTextToArray_FirstPass(selectedText) {
 	// no space in between separators. This method manually
 	// adds a space character after a detected separator
 	// has no space character
-	var spacedText = htmlEntitiesDecode(selectedText);
+	var spacedText = selectedText;
 	if (madvEnableSpaceInsertion == 'true') {
 		spacedText = spacedText.replace(/([.,?!:;])(?! )/g, '$1 ');
 	}
-	spacedText = htmlEntitiesEncode(spacedText);
+	// spacedText = spacedText;
 
 	// --------------------------------------------------------------------
 	// STEP 2
 	// Split the selected text by single space character
 	//console.log(spacedText);
-	var splitText = spacedText.match(/\S+/g);
+	var splitText = spacedText.match(/\S+(?:\r\n|\n)?/g);
 
 	// --------------------------------------------------------------------
 	// STEP 3
@@ -383,7 +383,7 @@ function splitTextToArray_FirstPass_CleanupLoop(index, splitText) {
 
 // --------------------------------------------------
 // Will process the passed in string array and return a
-// string array contained within the pased in parameters
+// string array contained within the passed in parameters
 function adjustStringArray(stringArray, minCharCountPerItem, maxItemLength) {
 	var clean = new Array();
 	for (var i=0; i<stringArray.length; i++) {
@@ -544,7 +544,7 @@ function splitTextToArray_SecondPass() {
 	//console.log(splitTextSecondPass);
 }
 
-// STEP 1 - The first pass loop
+// STEP 1 - The second pass loop
 // Loops through the initial split text array for processing
 function splitTextToArray_SecondPass_CleanupLoop(index, splitText) {
 	// Loop through the array from point i (index)
@@ -555,8 +555,6 @@ function splitTextToArray_SecondPass_CleanupLoop(index, splitText) {
 		// Assign text to variables
 		var text = splitText[i].text;
 		var textOriginal = splitText[i].textoriginal;
-
-		// Check for
 
 		// The text from the slide
 		var textItemSecond = {};
