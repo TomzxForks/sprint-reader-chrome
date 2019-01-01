@@ -329,7 +329,7 @@ function splitTextToArray_FirstPass_CleanupLoop(index, splitText) {
 		// If the slide ends in a period and contains one other
 		// character which is not a number
 		if (madvEnableAcronymDetection == 'true') {
-			if (textOnSlide.slice(-1) == '.' && textOnSlide.length >= 2) {
+			if (textOnSlide.slice(-1) == '.' && textOnSlide.length === 2) {
 				if (isNaN(textOnSlide[0])) {
 					// We have found a slide ending in a period and more than two
 					// characters long. Let's test to see if it's an acronym
