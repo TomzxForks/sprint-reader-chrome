@@ -95,7 +95,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	if (request.action == 'getMouseCoordinates') {
 		sendResponse({ 'x':x,'y':y });
 	} else if (request.action === 'getPageContent') {
-		var content = $('h1,h2,h3,h4,h5,p');
+		var content = $('h1,h2,h3,h4,h5,p,ul,ol');
 		content = preprocessContent(content);
 		sendResponse(content);
 	}
